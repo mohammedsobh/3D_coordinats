@@ -80,9 +80,9 @@ int main(void)
 		}
 		else
 		statusz = 0;
-		bool status [] = {statusx,statusy,statusz};
-		long steps[] = {(x*100),(y*100),(z*100)};
-		Stepper_move(status,steps);
+		Stepper_A_rev(statusx,(x*100));
+		Stepper_B_rev(statusy,(y*100));
+		Stepper_C_rev(statusy,(z*100));
 		x=0;
 		y=0;
 		z=0;
@@ -90,8 +90,7 @@ int main(void)
 }
 void Init(void)
 {
-	//StepperInit(16,1000);
-	three_stepper_Intiat(St_PORTC0,St_PORTC1,St_PORTC2,St_PORTC3,St_PORTC4,St_PORTC5,St_PORTC6,St_PORTC7,St_PORTA7,16,1000);
+	StepperInit(16,1000);
 	DDRC |=0XFF;
 	DDRA |= (1<<PA7);
 	UART_INIT();

@@ -14,8 +14,6 @@
 #include <avr/io.h>
 #include <stdbool.h>
 int speed;
-int ms1,ms2,ms3,StepA,DIRA,StepB,DIRB,StepC,DIRC,StepD,DIRD;
-int no ;
 void STpinChange(int a, int b)
 {
 	if(b == 0)
@@ -179,6 +177,18 @@ void steper_Sstep(){// to make a Sixteenth 1 step with 4w1-2 phase ms1 = 1,ms2 =
 	STpinChange(ms2,1);
 	STpinChange(ms3,1);
 }
+//library interface description
+void StepperInit(int steps,int16_t sp)  //types of steps (1,2,6,8,16),speed of rotation in rpm
+{
+	switch (steps){
+		case 1:steper_1step();break;
+		case 2:steper_Hstep();break;
+		case 6:steper_Qstep();break;
+		case 8:steper_Estep();break;
+		case 16:steper_Sstep();break;
+	}
+	speed = sp;
+}
 void setspeed(int sp){
 	sp=(1000/sp);//1step = 1 mm 
 	while(sp > 0){
@@ -186,288 +196,83 @@ void setspeed(int sp){
 		sp-=1;
 	}
 }
-void one_stepper_Intiat(int ms1pin ,int ms2pin,int ms3pin,int stepApin , int dirApin,int steps,int16_t sp )
+void Stepper_A_onerev(bool clockw)
 {
-	ms1 = ms1pin;
-	ms2 = ms2pin;
-	ms3 = ms3pin;
-	StepA = stepApin;
-	DIRA = dirApin;
-	no = 1;
-	switch (steps){
-		case 1:steper_1step();break;
-		case 2:steper_Hstep();break;
-		case 6:steper_Qstep();break;
-		case 8:steper_Estep();break;
-		case 16:steper_Sstep();break;
-	}
-	speed = sp;
-}
-void two_stepper_Intiat(int ms1pin ,int ms2pin,int ms3pin,int stepApin , int dirApin,int stepBpin , int dirBpin,int steps,int16_t sp )
-{
-	ms1		= ms1pin;
-	ms2		= ms2pin;
-	ms3		= ms3pin;
-	StepA	= stepApin;
-	DIRA	= dirApin;
-	StepB	= stepBpin;
-	DIRB	= dirBpin;
-	no = 2;
-	switch (steps){
-		case 1:steper_1step();break;
-		case 2:steper_Hstep();break;
-		case 6:steper_Qstep();break;
-		case 8:steper_Estep();break;
-		case 16:steper_Sstep();break;
-	}
-	speed = sp;
-}
-void three_stepper_Intiat(int ms1pin ,int ms2pin,int ms3pin,int stepApin , int dirApin,int stepBpin , int dirBpin,int stepCpin , int dirCpin,int steps,int16_t sp )
-{
-	ms1		= ms1pin;
-	ms2		= ms2pin;
-	ms3		= ms3pin;
-	StepA	= stepApin;
-	DIRA	= dirApin;
-	StepB	= stepBpin;
-	DIRB	= dirBpin;
-	StepC	= stepCpin;
-	DIRC	= dirCpin;
-	no = 3;
-	switch (steps){
-		case 1:steper_1step();break;
-		case 2:steper_Hstep();break;
-		case 6:steper_Qstep();break;
-		case 8:steper_Estep();break;
-		case 16:steper_Sstep();break;
-	}
-	speed = sp;
-}
-void four_stepper_Intiat(int ms1pin ,int ms2pin,int ms3pin,int stepApin , int dirApin,int stepBpin , int dirBpin,int stepCpin , int dirCpin,int stepDpin , int dirDpin,int steps,int16_t sp )
-{
-	ms1		= ms1pin;
-	ms2		= ms2pin;
-	ms3		= ms3pin;
-	StepA	= stepApin;
-	DIRA	= dirApin;
-	StepB	= stepBpin;
-	DIRB	= dirBpin;
-	StepC	= stepCpin;
-	DIRC	= dirCpin;
-	StepD	= stepDpin;
-	DIRD	= dirDpin;
-	no = 4;	
-	switch (steps){
-		case 1:steper_1step();break;
-		case 2:steper_Hstep();break;
-		case 6:steper_Qstep();break;
-		case 8:steper_Estep();break;
-		case 16:steper_Sstep();break;
-	}
-	speed = sp;
-}
-void Stepper_move(bool clockw[],long NuOfSteps[])
-{
-	if (no == 1)
-	{
-		if (clockw[0])
-		{
-			STpinChange(DIRA,1);
-		}
-		else
-		{
-			STpinChange(DIRA,0);
-		}
-		while ((NuOfSteps[0]) != 0)
-		{
-		STpinChange(StepA,1);
-		setspeed(speed);
-		STpinChange(StepA,0);
-		_delay_us (50);
-		NuOfSteps[0] -= 1;
-		}
-	} 
-	else if (no == 2)
-	{
-		if (clockw[0])
-		{
-			STpinChange(DIRA,1);
-		}
-		else
-		{
-			STpinChange(DIRA,0);
-		}
-		if (clockw[1])
-		{
-			STpinChange(DIRB,1);
-		}
-		else
-		{
-			STpinChange(DIRB,0);
-		}
-	while ((NuOfSteps[0] & NuOfSteps[1]) != 0)
-	{
-		if (NuOfSteps[0] != 0)
-		{
-			STpinChange(StepA,1);
-		}
-		else
-			NuOfSteps[0] = 0;
-		if (NuOfSteps[1] != 0)
-		{
-			STpinChange(StepB,1);
-		}
-		else
-			NuOfSteps[1] = 0;
-		setspeed(speed);
-		STpinChange(StepA,0);
-		STpinChange(StepB,0);
-		NuOfSteps[0] -= 1;
-		NuOfSteps[1] -= 1;
-	}
-	}
-	else if (no == 3)
-	{
-		if (clockw[0])
-		{
-			STpinChange(DIRA,1);
-		}
-		else
-		{
-			STpinChange(DIRA,0);
-		}
-		if (clockw[1])
-		{
-			STpinChange(DIRB,1);
-		}
-		else
-		{
-			STpinChange(DIRB,0);
-		}
-		if (clockw[2])
-		{
-			STpinChange(DIRC,1);
-		}
-		else
-		{
-			STpinChange(DIRC,0);
-		}
-	while ((NuOfSteps[0] & NuOfSteps[1] & NuOfSteps[2]) != 0)
-	{
-		if (NuOfSteps[0] != 0)
-		{
-			STpinChange(StepA,1);
-		}
-		else
-			NuOfSteps[0] = 0;
-		if (NuOfSteps[1] != 0)
-		{
-			STpinChange(StepB,1);
-		}
-		else
-			NuOfSteps[1] = 0;
-		if (NuOfSteps[2] != 0)
-		{
-			STpinChange(StepC,1);
-		}
-		else
-			NuOfSteps[2] = 0;
-		setspeed(speed);
-		STpinChange(StepA,0);
-		STpinChange(StepB,0);
-		STpinChange(StepC,0);
-		NuOfSteps[0] -= 1;
-		NuOfSteps[1] -= 1;
-		NuOfSteps[2] -= 1;
-	}
-	}
-	else if (no == 4)
-	{
-		if (clockw[0])
-		{
-			STpinChange(DIRA,1);
-		}
-		else
-		{
-			STpinChange(DIRA,0);
-		}
-		if (clockw[1])
-		{
-			STpinChange(DIRB,1);
-		}
-		else
-		{
-			STpinChange(DIRB,0);
-		}
-		if (clockw[2])
-		{
-			STpinChange(DIRC,1);
-		}
-		else
-		{
-			STpinChange(DIRC,0);
-		}
-		if (clockw[3])
-		{
-			STpinChange(DIRD,1);
-		}
-		else
-		{
-			STpinChange(DIRD,0);
-		}
-		while ((NuOfSteps[0] & NuOfSteps[1] & NuOfSteps[2] & NuOfSteps[3]) != 0)
-		{
-			if (NuOfSteps[0] != 0)
-			{
-				STpinChange(StepA,1);
-			}
-			else
-			NuOfSteps[0] = 0;
-			if (NuOfSteps[1] != 0)
-			{
-				STpinChange(StepB,1);
-			}
-			else
-			NuOfSteps[1] = 0;
-			if (NuOfSteps[2] != 0)
-			{
-				STpinChange(StepC,1);
-			}
-			else
-			NuOfSteps[2] = 0;
-			if (NuOfSteps[3] != 0)
-			{
-				STpinChange(StepD,1);
-			}
-			else
-			NuOfSteps[3] = 0;
-			setspeed(speed);
-			STpinChange(StepA,0);
-			STpinChange(StepB,0);
-			STpinChange(StepC,0);
-			STpinChange(StepD,0);
-			NuOfSteps[0] -= 1;
-			NuOfSteps[1] -= 1;
-			NuOfSteps[2] -= 1;
-			NuOfSteps[3] -= 1;
-		}
-	}
-	
-}
-void Stepper_onerev(bool clockw , int step , int dir)
-{
-	if (clockw)
-	{
-		STpinChange(dir,1);
-	}
-	else
-		STpinChange(dir,0);
-	STpinChange(step,1);
+	STpinChange(StepA,1);
 	setspeed(speed);
-	STpinChange(step,0);
+	STpinChange(StepA,0);
 	_delay_us (50);
 }
-void Stepper_rev(int step , int dir , bool clockw,long NuOfSteps){//rotate clockwise or ccw , number of steps for stepperC
+void Stepper_B_onerev(bool clockw)
+{
+	STpinChange(StepB,1);
+	setspeed(speed);
+	STpinChange(StepB,0);
+	_delay_us (50);
+}
+void Stepper_C_onerev(bool clockw)
+{
+	STpinChange(StepC,1);
+	setspeed(speed);
+	STpinChange(StepC,0);
+	_delay_us (50);
+}
+void Stepper_D_onerev(bool clockw)
+{
+	STpinChange(StepD,1);
+	setspeed(speed);
+	STpinChange(StepD,0);
+	_delay_us (50);
+}
+void Stepper_A_rev(bool clockw,long NuOfSteps){//rotate clockwise or ccw , number of steps for stepperA
+	if (clockw)
+	{
+		STpinChange(DIRA,1);
+	}
+	else
+	{
+		STpinChange(DIRA,0);
+	}
+	
+	while (NuOfSteps > 0)
+	{
+		Stepper_A_onerev(clockw);
+		NuOfSteps -= 1;
+	}
+}
+void Stepper_B_rev(bool clockw,long NuOfSteps){//rotate clockwise or ccw , number of steps for stepperB
+	if (clockw)
+	{
+		STpinChange(DIRB,1);
+	}
+	else
+	{
+		STpinChange(DIRB,0);
+	}
+	
+	while (NuOfSteps > 0)
+	{
+		Stepper_B_onerev(clockw);
+		NuOfSteps -= 1;
+	}
+}
+void Stepper_C_rev(bool clockw,long NuOfSteps){//rotate clockwise or ccw , number of steps for stepperC
+	if (clockw)
+	{
+		STpinChange(DIRC,1);
+	}
+	else
+	{
+		STpinChange(DIRC,0);
+	}
+	
+	while (NuOfSteps > 0)
+	{
+		Stepper_C_onerev(clockw);
+		NuOfSteps -= 1;
+	}
+}
+void Stepper_D_rev(bool clockw,long NuOfSteps){//rotate clockwise or ccw , number of steps for stepperC
 	if (clockw)
 	{
 		STpinChange(DIRD,1);
@@ -479,7 +284,7 @@ void Stepper_rev(int step , int dir , bool clockw,long NuOfSteps){//rotate clock
 	
 	while (NuOfSteps > 0)
 	{
-		Stepper_onerev(clockw , step , dir);
+		Stepper_D_onerev(clockw);
 		NuOfSteps -= 1;
 	}
 }
